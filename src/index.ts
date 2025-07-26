@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
+import todoRouter from "./routes/todoRoutes";
 
 dotenv.config();
 const app = express();
@@ -16,32 +17,7 @@ app.get("/", (req, res) => {
   res.send("This is home route");
 });
 
-// temp database
-import type { ITodo } from "./models/Todo";
-import { Schema, model, Document, Types } from "mongoose";
-let todos: ITodo[] = [];
-
-app.get("/todos", (req, res) => {
-  res.json(todos);
-});
-
-app.post("/todos", (req, res) => {
-  const { content } = req.body;
-  const newTodo: ITodo = {
-    userId: new Types.ObjectId(),
-    content,
-    note: "optional",
-    // label: optional,
-    deadline: new Date(),
-    completed: false,
-    completedAt: new Date(),
-    order: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
-  todos.push(newTodo);
-  res.status(201).json(newTodo);
-});
+app.use("/todo", todoRouter);
 
 /** SERVER */
 const PORT = process.env.PORT || 3002;
