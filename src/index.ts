@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/todo", todoRouter);
-app.use("/api/v1/user", userRouter);
+app.use("/api/v1/users", userRouter);
 
 /** SERVER */
 const PORT = process.env.PORT || 3002;

@@ -1,11 +1,86 @@
 import { User } from "../models/User.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 import { createToken } from "../utils/createToken.js";
-import bcryptjs from "bcryptjs";
+import bcrypt from "bcryptjs";
 
 export const createUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
-  console.log(username);
-  console.log(email);
-  console.log(password);
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+        throw new Error("Please fill all the fields");
+    }
+
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+        res.status(400).send("User already exists");
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const newUser = new User({
+        username: username,
+        email: email,
+        passwordHash: hashedPassword,
+    });
+
+    try {
+        await newUser.save();
+        const userId = newUser._id as string;
+        createToken({ res, userId });
+
+        res.status(201).json({
+            _id: userId,
+            username: newUser.username,
+            email: newUser.email,
+            isAdmin: newUser.isAdmin,
+        });
+    } catch (error) {
+        res.status(400);
+        throw new Error("Invalid user data");
+    }
+});
+
+export const loginUser = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        throw new Error("Please fill all the fields");
+    }
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+        const isPasswordValid = await bcrypt.compare(
+            password,
+            userExists.passwordHash
+        );
+        const userId = userExists._id as string;
+        if (isPasswordValid) {
+            createToken({ res, userId });
+            res.status(201).json({
+                _id: userId,
+                username: userExists.username,
+                email: userExists.email,
+                isAdmin: userExists.isAdmin,
+            });
+        } else {
+            res.status(401).json({
+                message: "Credentials does not match, please try again",
+            });
+        }
+    } else {
+        res.json({ message: "Credentials does not match, please try again" });
+    }
+});
+
+export const logoutUser = asyncHandler(async (req, res) => {
+    res.cookie("jwt", "", {
+        httpOnly: true,
+        expires: new Date(0),
+    });
+
+    res.status(200).json({ message: "Logged out successfully" });
+});
+
+export const getAllUsers = asyncHandler(async (req, res) => {
+    const users = await User.find({});
+    res.json(users);
 });

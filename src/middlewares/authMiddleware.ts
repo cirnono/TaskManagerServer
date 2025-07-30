@@ -8,23 +8,25 @@ export const authticate = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies.jwt;
 
-    if (token) {
-      try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-          userId: string;
-        };
-        req.user = (await User.findById(decoded.userId).select(
-          "-password"
-        )) as IUser | null;
-        next();
-      } catch (error) {
-        res.status(401);
-        throw new Error("Not authorised, token failed");
-      }
-    } else {
+    if (!token) {
+      res.status(401);
+      throw new Error("Not authorised, token failed");
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: string;
+    };
+    const user = (await User.findById(decoded.userId).select(
+      "-password"
+    )) as IUser | null;
+
+    if (!user) {
       res.status(401);
       throw new Error("Not authorised, no token");
     }
+
+    req.user = user;
+    next();
   }
 );
 
@@ -33,7 +35,7 @@ export const authorisedAdmin = (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.user && req.user.isAdmin) {
+  if (req.user?.isAdmin) {
     next();
   } else {
     res.status(401).send("Not authorised as an admin");
