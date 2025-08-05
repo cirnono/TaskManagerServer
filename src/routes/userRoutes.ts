@@ -6,6 +6,7 @@ import {
     getAllUsers,
     updateUser,
     getUserInfo,
+    googleOAuthHandler,
 } from "../controllers/userController";
 import {
     createTodo,
@@ -31,6 +32,8 @@ userRouter
     .get(authenticate, authorisedAdmin, getAllUsers);
 
 userRouter.post("/auth", loginUser);
+userRouter.post("/oauth/google", googleOAuthHandler);
+// userRouter.post("/oauth/github", githubOAuthHandler);
 userRouter.post("/logout", logoutUser);
 userRouter
     .route("/profile")

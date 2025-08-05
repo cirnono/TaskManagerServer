@@ -1,7 +1,6 @@
 import { Todo } from "../models/Todo";
 import { Request } from "express";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
-import { User } from "../models/User";
 
 export const getAllTodos = asyncHandler(async (req, res) => {
     const reqUser = req.user;

@@ -8,12 +8,12 @@ export const createUser = asyncHandler(async (req, res) => {
     const { username, email, password } = req.body;
 
     if (!username || !email || !password) {
-        throw new Error("Please fill all the fields");
+        res.status(400).json({ message: "Please fill all the fields" });
     }
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-        res.status(400).send("User already exists");
+        res.status(400).json({ message: "User already exists" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -137,3 +137,7 @@ export const updateUser = asyncHandler(async (req, res) => {
         throw new Error("User not found");
     }
 });
+
+export const googleOAuthHandler = asyncHandler(
+    async (requestAnimationFrame, res) => {}
+);
