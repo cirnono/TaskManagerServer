@@ -1,24 +1,52 @@
 import { Router } from "express";
-import { Todo } from "../models/Todo";
 import {
     createUser,
     loginUser,
     logoutUser,
     getAllUsers,
+    updateUser,
+    getUserInfo,
 } from "../controllers/userController";
+import {
+    createTodo,
+    deleteTodo,
+    getAllTodos,
+    updateTodo,
+} from "../controllers/todoController";
 
 // middlewares
-import { authticate, authorisedAdmin } from "../middlewares/authMiddleware";
+import { authenticate, authorisedAdmin } from "../middlewares/authMiddleware";
+import {
+    createLabel,
+    deleteLabel,
+    getAllLabels,
+    updateLabel,
+} from "../controllers/labelController";
 
 const userRouter = Router();
 
 userRouter
     .route("/")
     .post(createUser)
-    .get(authticate, authorisedAdmin, getAllUsers);
+    .get(authenticate, authorisedAdmin, getAllUsers);
 
 userRouter.post("/auth", loginUser);
 userRouter.post("/logout", logoutUser);
-//userRouter.route("/todo").get(authenticate, getTodo )
+userRouter
+    .route("/profile")
+    .get(authenticate, getUserInfo)
+    .put(authenticate, updateUser);
+userRouter
+    .route("/todo")
+    .get(authenticate, getAllTodos)
+    .post(authenticate, createTodo)
+    .delete(authenticate, deleteTodo)
+    .put(authenticate, updateTodo);
+userRouter
+    .route("/label")
+    .get(authenticate, getAllLabels)
+    .post(authenticate, createLabel)
+    .delete(authenticate, deleteLabel)
+    .put(authenticate, updateLabel);
 
 export default userRouter;

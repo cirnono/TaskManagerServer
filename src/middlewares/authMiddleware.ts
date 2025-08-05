@@ -4,29 +4,27 @@ import { User, IUser } from "../models/User";
 import { asyncHandler } from "./asyncHandler";
 
 // Check if user authenticated
-export const authticate = asyncHandler(
+export const authenticate = asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const token = req.cookies.jwt;
 
-        if (!token) {
-            res.status(401);
-            throw new Error("Not authorised, token failed");
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+                    userId: string;
+                };
+                const user = (await User.findById(decoded.userId).select(
+                    "-passwordHash"
+                )) as IUser;
+
+                req.user = user;
+                next();
+            } catch (error) {
+                res.status(401).send("Not authorised, token failed");
+            }
+        } else {
+            res.status(401).send("Not authorised, no token");
         }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-            userId: string;
-        };
-        const user = (await User.findById(decoded.userId).select(
-            "-passwordHash"
-        )) as IUser | null;
-
-        if (!user) {
-            res.status(401);
-            throw new Error("Not authorised, no token");
-        }
-
-        req.user = user;
-        next();
     }
 );
 
