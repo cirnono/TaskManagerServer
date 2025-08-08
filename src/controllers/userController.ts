@@ -54,8 +54,8 @@ export const createUser = asyncHandler(async (req, res) => {
 });
 
 export const confirmUserRegistration = asyncHandler(async (req, res) => {
-    const { token } = req.query;
-
+    const { token } = req.body;
+    console.log(token)
     const user = await User.findOne({ emailVerificationToken: token });
     if (!user)
         return res.status(400).json({ message: "Invalid or expired token" });
@@ -177,7 +177,7 @@ export const googleOAuthHandler = asyncHandler(
 );
 
 export const resetPasswordRequest = asyncHandler(async (req, res) => {
-    const { email } = req.body.email;
+    const { email } = req.body;
 
     if (!email) {
         res.status(401).json({ message: "Invalid Request" });
@@ -208,7 +208,7 @@ export const resetPasswordRequest = asyncHandler(async (req, res) => {
 });
 
 export const getEmailFromToken = asyncHandler(async (req, res) => {
-    const { token } = req.body.newPassword;
+    const { token } = req.body;
     if (!token) {
         res.status(401).json({ message: "Invalid Request" });
     }
@@ -222,7 +222,7 @@ export const getEmailFromToken = asyncHandler(async (req, res) => {
 });
 
 export const resetPassword = asyncHandler(async (req, res) => {
-    const { newPassword, token } = req.body.newPassword;
+    const { newPassword, token } = req.body;
     if (!newPassword) {
         res.status(401).json({ message: "Invalid Request" });
     }

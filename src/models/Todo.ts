@@ -11,7 +11,7 @@ const NoteSchema = new Schema<INote>(
         text: { type: String, required: true },
         createdAt: { type: Date, default: Date.now },
     },
-    { _id: false, timestamps: { createdAt: true, updatedAt: false } }
+    { _id: false, timestamps: { createdAt: true, updatedAt: true } }
 );
 
 // order should start from 1

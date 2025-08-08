@@ -39,6 +39,7 @@ userRouter.post("/auth", loginUser);
 userRouter.post("/oauth/google", googleOAuthHandler);
 // userRouter.post("/oauth/github", githubOAuthHandler);
 userRouter.post("/logout", logoutUser);
+userRouter.post("/email", getEmailFromToken);
 userRouter
     .route("/profile")
     .get(authenticate, getUserInfo)
@@ -58,7 +59,6 @@ userRouter
 userRouter.route("/verify-email").post(confirmUserRegistration);
 userRouter
     .route("/reset-password")
-    .get(getEmailFromToken)
     .post(resetPasswordRequest)
     .put(resetPassword);
 // 如果用户目前没有verification code储存在database里，有黑客通过PUT password， http://localhost:3001/api/v1/user/reset-password, 来改密码怎么办
