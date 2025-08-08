@@ -7,6 +7,10 @@ import {
     updateUser,
     getUserInfo,
     googleOAuthHandler,
+    confirmUserRegistration,
+    resetPasswordRequest,
+    resetPassword,
+    getEmailFromToken,
 } from "../controllers/userController";
 import {
     createTodo,
@@ -28,8 +32,8 @@ const userRouter = Router();
 
 userRouter
     .route("/")
-    .post(createUser)
-    .get(authenticate, authorisedAdmin, getAllUsers);
+    .get(authenticate, authorisedAdmin, getAllUsers)
+    .post(createUser);
 
 userRouter.post("/auth", loginUser);
 userRouter.post("/oauth/google", googleOAuthHandler);
@@ -51,5 +55,12 @@ userRouter
     .post(authenticate, createLabel)
     .delete(authenticate, deleteLabel)
     .put(authenticate, updateLabel);
+userRouter.route("/verify-email").post(confirmUserRegistration);
+userRouter
+    .route("/reset-password")
+    .get(getEmailFromToken)
+    .post(resetPasswordRequest)
+    .put(resetPassword);
+// 如果用户目前没有verification code储存在database里，有黑客通过PUT password， http://localhost:3001/api/v1/user/reset-password, 来改密码怎么办
 
 export default userRouter;
